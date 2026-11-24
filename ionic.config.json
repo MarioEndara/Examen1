@@ -1,0 +1,7 @@
+{
+  "name": "gestion-electoral",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular-standalone"
+}
