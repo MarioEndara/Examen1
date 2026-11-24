@@ -1,7 +1,8 @@
 Gestión Electoral
+
 Desarrollo de una aplicación móvil para la información del proceso electoral, con Ionic + Angular Standalone + Capacitor para Android.
 
-REQUISITOS PREVIOS-HERRAMIENTA A UTILIZAR
+REQUISITOS PREVIOS-HERRAMIENTAs A UTILIZAR
 
 - Node.js V20 o superior (verificacion con `node -v`)
 - Ionic Cli ( `npm install -g @ionic/cli`)
