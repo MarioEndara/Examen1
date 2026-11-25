@@ -1,37 +1,34 @@
 import { Injectable } from '@angular/core';
-import { SupabaseService } from '../../core/services/supabase.service';
+import { ActasRepository } from '../../core/data-access/actas.repository';
 
-
-@Injectable({ providedIn: 'root' })
+@Injectable({
+  providedIn: 'root'
+})
 export class ActasService {
-  constructor(private sb: SupabaseService) {}
+  constructor(private repo: ActasRepository) {}
 
-  private get supabase() { return this.sb.client; }
-
-  async subirActa(mesaId: number, archivo: File) {
-    const ruta = `${mesaId}/acta.jpg`;
-
-    const { error: errSubida } = await this.supabase.storage
-      .from('actas')
-      .upload(ruta, archivo, { upsert: true, contentType: archivo.type });
-    if (errSubida) throw errSubida;
-
-    const { error: errBd } = await this.supabase
-      .from('mesas')
-      .update({ foto_acta_url: ruta })
-      .eq('id', mesaId);
-    if (errBd) throw errBd;
+  private rutaActa(mesaId: number): string {
+    return `${mesaId}/acta.jpg`;
   }
 
-  async verActa(ruta: string) {
-    const { data, error } = await this.supabase.storage
-      .from('actas')
-      .createSignedUrl(ruta, 60);
-    if (error) throw error;
-    return data.signedUrl;
+  async subirActa(mesaId: number, archivo: File): Promise<void> {
+    const ruta = this.rutaActa(mesaId);
+
+    await this.repo.subirArchivo(ruta, archivo);
+    await this.repo.actualizarRutaMesa(mesaId, ruta);
   }
-  async usuarioActual() {
-  const { data } = await this.supabase.auth.getUser();
-  return data.user?.email ?? 'SIN SESIÓN';
+
+  verActa(ruta: string): Promise<string> {
+    return this.repo.crearUrlFirmada(ruta);
+  }
+
+  verActaDeMesa(mesaId: number): Promise<string> {
+    return this.verActa(this.rutaActa(mesaId));
+  }
+
+  async usuarioActual(): Promise<string> {
+    const email = await this.repo.obtenerEmailActual();
+
+    return email ?? 'SIN SESIÓN';
   }
 }

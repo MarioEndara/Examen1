@@ -2,15 +2,11 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-
-// Importamos los componentes de Ionic individualmente (Adiós IonicModule)
 import { 
   IonHeader, IonToolbar, IonTitle, IonContent, 
   IonItem, IonLabel, IonInput, IonButton, IonSpinner, IonText 
 } from '@ionic/angular';
-
-// Ruta relativa correcta (4 niveles arriba)
-import { SupabaseService } from '../../../../core/services/supabase.service';
+import { AuthRepository } from '../../../../core/data-access/auth.repository';
 
 @Component({
   selector: 'app-login',
@@ -18,8 +14,7 @@ import { SupabaseService } from '../../../../core/services/supabase.service';
   styleUrls: ['./login.page.scss'],
   standalone: true,
   imports: [
-    CommonModule, 
-    FormsModule,
+    CommonModule, FormsModule,
     IonHeader, IonToolbar, IonTitle, IonContent, 
     IonItem, IonLabel, IonInput, IonButton, IonSpinner, IonText
   ]
@@ -30,8 +25,9 @@ export class LoginPage {
   loading = false;
   errorMessage = '';
 
+  // Inyectamos el Repositorio, ya no el SupabaseService directo
   constructor(
-    private supabaseService: SupabaseService,
+    private authRepo: AuthRepository,
     private router: Router
   ) {}
 
@@ -44,19 +40,19 @@ export class LoginPage {
     this.loading = true;
     this.errorMessage = '';
 
-    const { data, error } = await this.supabaseService.client.auth.signInWithPassword({
-      email: this.email,
-      password: this.password
-    });
+    try {
+      const { data, error } = await this.authRepo.login(this.email, this.password);
 
-    this.loading = false;
-
-    if (error) {
-      this.errorMessage = 'Credenciales incorrectas: ' + error.message;
-      console.error(error);
-    } else {
-      console.log('Login exitoso:', data.user);
-      this.router.navigate(['/home']); 
+      if (error) {
+        this.errorMessage = 'Error: ' + error.message;
+      } else {
+        console.log('Login exitoso:', data.user);
+        this.router.navigate(['/home']); 
+      }
+    } catch (err: any) {
+      this.errorMessage = 'Error de conexión: ' + err.message;
+    } finally {
+      this.loading = false;
     }
   }
 }
