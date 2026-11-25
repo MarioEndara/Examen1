@@ -5,27 +5,73 @@
 </ion-header>
 
 <ion-content [fullscreen]="true" class="ion-padding">
-  <div style="max-width: 400px; margin: 0 auto; margin-top: 50px;">
+  <div style="max-width: 400px; margin: 50px auto 0;">
     <h2 style="text-align: center; font-weight: bold;">Gestión Electoral</h2>
-    <p style="text-align: center; color: gray;">Ingresa tus credenciales para continuar</p>
+    <p style="text-align: center;">Ingresa tu cédula y contraseña para continuar</p>
 
-    <ion-item>
-      <ion-label position="floating">Correo Electrónico</ion-label>
-      <ion-input type="email" [(ngModel)]="email" placeholder="correo@ejemplo.com"></ion-input>
-    </ion-item>
+    <form (ngSubmit)="onLogin()" [attr.aria-busy]="loading">
+      <ion-item>
+        <ion-input
+          label="Cédula"
+          labelPlacement="stacked"
+          type="text"
+          inputmode="numeric"
+          [maxlength]="10"
+          autocomplete="username"
+          name="cedula"
+          [(ngModel)]="cedula"
+          [disabled]="loading"
+          placeholder="10 dígitos">
+        </ion-input>
+      </ion-item>
 
-    <ion-item>
-      <ion-label position="floating">Contraseña</ion-label>
-      <ion-input type="password" [(ngModel)]="password" placeholder="********"></ion-input>
-    </ion-item>
+      <ion-item>
+        <ion-input
+          label="Contraseña"
+          labelPlacement="stacked"
+          type="password"
+          autocomplete="current-password"
+          name="password"
+          [(ngModel)]="password"
+          [disabled]="loading"
+          placeholder="Tu contraseña actual">
+        </ion-input>
+      </ion-item>
 
-    <ion-text color="danger" *ngIf="errorMessage">
-      <p style="text-align: center; margin-top: 10px;">{{ errorMessage }}</p>
-    </ion-text>
+      @if (errorMessage) {
+        <ion-text color="danger">
+          <p role="alert">{{ errorMessage }}</p>
+        </ion-text>
+      }
 
-    <ion-button expand="block" class="ion-margin-top" (click)="onLogin()" [disabled]="loading">
-      <ion-spinner *ngIf="loading"></ion-spinner>
-      <span *ngIf="!loading">Ingresar</span>
+      @if (successMessage) {
+        <ion-text color="success">
+          <p role="status">{{ successMessage }}</p>
+        </ion-text>
+      }
+
+      <ion-button
+          type="submit"
+          expand="block"
+          class="ion-margin-top"
+          [disabled]="loading">
+        @if (loading) {
+          <ion-spinner name="crescent" aria-label="Iniciando sesión"></ion-spinner>
+          <span style="margin-left: 8px;">Ingresando...</span>
+        } @else {
+          <span>Ingresar</span>
+        }
+      </ion-button>
+    </form>
+
+    <ion-button
+        type="button"
+        fill="clear"
+        expand="block"
+        [disabled]="loading"
+        (click)="irARecuperar()">
+      Recuperar contraseña
     </ion-button>
   </div>
 </ion-content>
+

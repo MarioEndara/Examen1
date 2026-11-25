@@ -1,10 +1,79 @@
-<ion-header [translucent]="true">
-  <ion-toolbar>
-    <ion-title>Gestión Electoral</ion-title>
-  </ion-toolbar>
-</ion-header>
+<ion-content>
+  <main>
+    <header>
+      <strong>Gestión Electoral</strong>
+      <button type="button" (click)="salir()" [disabled]="saliendo()">
+        Salir
+      </button>
+    </header>
 
-<ion-content [fullscreen]="true" class="ion-padding">
-  <h2>Bienvenido al Sistema</h2>
-  <p>Aquí irá el login y el dashboard de roles.</p>
+    @if (cargando()) {
+      <p role="status">Cargando tu panel…</p>
+    }
+
+    @if (error()) {
+      <p role="alert">{{ error() }}</p>
+      <button type="button" (click)="ionViewWillEnter()">Reintentar</button>
+    }
+
+    @if (perfil(); as p) {
+      <section class="portada">
+        <p>{{ roles[p.role] }}</p>
+        <h1>{{ p.nombre_completo }}</h1>
+
+        <a routerLink="/actas-prueba">
+          {{ p.role === 'veedor' ? 'Abrir mis actas' : 'Consultar actas' }} →
+        </a>
+      </section>
+
+      @if (p.role !== 'veedor') {
+        <h2>
+          {{ p.role === 'coordinador_recinto' ? 'Mi recinto' : 'Recintos electorales' }}
+        </h2>
+
+        @for (r of recintos(); track r.id) {
+          <article>
+            <div>
+              <strong>{{ r.nombre }}</strong>
+              <small>{{ r.parroquia }}</small>
+            </div>
+
+            @if (p.role === 'coordinador_recinto' || !r.coordinador_id) {
+              <a routerLink="/crear-usuario" [queryParams]="{ recinto: r.id }">
+                {{ p.role === 'coordinador_recinto' ? 'Crear veedor' : 'Crear coordinador' }}
+              </a>
+            } @else {
+              <span>Con coordinador</span>
+            }
+          </article>
+        } @empty {
+          <p>No hay recintos asignados.</p>
+        }
+      }
+
+      <h2>
+        {{ p.role === 'veedor' ? 'Mis mesas asignadas' : 'Mesas' }} · {{ mesas().length }}
+      </h2>
+
+      @for (m of mesas(); track m.id) {
+        <article>
+          <div>
+            <strong>Mesa {{ m.numero_mesa }}</strong>
+            <small>Recinto {{ m.recinto_id }} · ID de mesa {{ m.id }}</small>
+          </div>
+
+          <span>{{ m.foto_acta_url ? 'Con fotografía' : 'Sin fotografía' }}</span>
+
+          @if (p.role === 'coordinador_recinto') {
+            <app-asignar-veedor
+              [mesaId]="m.id"
+              [numeroMesa]="m.numero_mesa">
+            </app-asignar-veedor>
+          }
+        </article>
+      } @empty {
+        <p>No hay mesas asignadas para mostrar.</p>
+      }
+    }
+  </main>
 </ion-content>
