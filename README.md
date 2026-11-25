@@ -62,7 +62,7 @@ Configura `src/environments/environment.ts`:
 export const environment = {
   production: false,
   supabaseUrl: 'https://<tu-proyecto>.supabase.co',
-  supabaseKey: 'sb_publishable_...'   // clave pública, nunca la secreta
+  supabaseKey: 'sb_publishable_...'
 };
 ```
 
