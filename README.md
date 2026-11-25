@@ -94,6 +94,69 @@ src/app/
 ├── core/services/supabase.service.ts   # cliente de Supabase
 └── features/actas/                     # subida y consulta de actas
 ```
+ADR 3
+## Funcionalidades implementadas
+
+- Inicio de sesión.
+- Consulta de mesas.
+- Flujo de subida y visualización de fotografías de actas.
+- Control de acceso mediante políticas RLS.
+- Componente compartido para mostrar mensajes.
+
+## Tecnologías
+
+- Ionic y Angular: interfaz y navegación.
+- Supabase Auth: autenticación.
+- PostgreSQL: almacenamiento de datos.
+- Supabase Storage: almacenamiento de imágenes.
+- RLS: autorización de operaciones.
+
+## Arquitectura — ADR 3
+
+Organización por funcionalidades con separación de responsabilidades:
+
+| Responsabilidad | Ubicación |
+|---|---|
+| Presentación | Páginas de `features/` y `home/` |
+| Coordinación de operaciones | `features/actas/actas.service.ts` |
+| Acceso al backend | `core/data-access/` |
+| Conexión con Supabase | `core/services/supabase.service.ts` |
+| Modelo de mesa | `shared/models/mesa.model.ts` |
+| Mensajes reutilizables | `shared/mensaje/mensaje.component.ts` |
+| Navegación | `app.routes.ts` |
+
+## Roles previstos
+
+- Provincial: consulta de información de su ámbito.
+- Recinto: administración de información de su recinto.
+- Veedor: consulta y registro en sus mesas asignadas.
+
+Los permisos efectivos dependen de las políticas configuradas en Supabase.
+
+## Ejecución
+
+Requiere Node.js, npm e Ionic CLI compatibles con el proyecto.
+
+```bash
+npm install
+ionic serve
+```
+
+La conexión de Supabase debe estar configurada y disponer de las tablas, usuarios, bucket `actas` y políticas correspondientes.
+
+## Rutas
+
+- `/login`: inicio de sesión.
+- `/home`: consulta inicial de mesas.
+- `/actas-prueba`: prueba de fotografías de actas.
+
+## Consideraciones
+
+Las imágenes se guardan en `<mesaId>/acta.jpg`. La consulta genera una URL firmada válida durante 60 segundos.
+
+La subida permite reemplazar la imagen existente si la cuenta tiene permiso. Utilizar datos de prueba.
+
+Las carpetas preparadas para otras funcionalidades no representan módulos terminados.
 
 
 
